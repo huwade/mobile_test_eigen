@@ -81,11 +81,34 @@ def tt_construct_layer7(filename, feature_x):
     #t0 = time.time()
     #for i in range(0,tensor_row_len):
     for i in range(0,tensor_row_len):
-        core_mat_0 = np.reshape(core_tensor_0[:,i,:],[ranks[0], ranks[1]],order = 'F')
-        core_mat_0_tmp = eigen_slice.hello(core_tensor_0[:,i,:])
-        print('//////////////////')
-        print(np.linalg.norm( core_mat_0 - core_mat_0_tmp ,2))
-    
+        core_mat_0 = core_tensor_0[:,i,:]
+        for j in range(0,tensor_column_len):
+            core_mat_1 = core_tensor_1[:,j,:]
+            
+            tmp1 = np.dot(core_mat_0, core_mat_1)
+            
+            for k in range(0,tensor_depth_len):
+                
+                core_mat_2 = np.reshape(core_tensor_2[:,k,:],[ranks[2], ranks[3]],order = 'F')
+                tmp2 = np.dot(tmp1, core_mat_2)
+
+                ind1 = np.zeros(tensor_channel_len) + i
+                ind2 = np.zeros(tensor_channel_len) + j
+                ind3 = np.zeros(tensor_channel_len) + k
+                ind4 = np.arange(tensor_channel_len)
+                 
+                indy = np.ravel_multi_index([ind1.astype('int64'),ind2.astype('int64'),ind3.astype('int64'),ind4.astype('int64')],(tensor_row_len, tensor_column_len, tensor_depth_len, tensor_channel_len), order='F')
+
+                row_index = np.mod(indy, column_len)
+
+                column_index = np.floor( indy / column_len).astype('int64')
+
+                tmp3 = np.dot(tmp2,core_tensor_3.reshape([ranks[3], tensor_channel_len],order = 'F')  )
+
+
+                tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
+                for l in range(0,tensor_channel_len):
+                    y_out[row_index[l]] = y_out[row_index[l]] + tmp4[0,l]
     
     
     

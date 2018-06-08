@@ -64,6 +64,35 @@ py::array_t<float> py_test_passed_by_reference(py::array_t<float, py::array::c_s
 
 
 
+
+Eigen::VectorXf hello_1(Eigen::Tensor<float, 3> &tensor1)
+{
+    
+    //std::cout << " *** " << tensor1 << "\n";
+    
+    Tensor<float, 3> slice2(16,1,16);
+    Eigen::DSizes<ptrdiff_t, 3> indices2(0,0,0);
+    Eigen::DSizes<ptrdiff_t, 3> sizes2(1,1,16);
+    slice2 = tensor1.slice(indices2, sizes2);
+    
+
+    //std::cout << " ******** " << "\n";
+    
+    
+    VectorXf v1(16);
+    
+    for (int i = 0; i < 16; ++i) 
+    {
+        v1(i) = slice2(0,0,i);    
+    }
+    //std::cout << " *** " << v1 << "\n";
+    return v1;
+    
+}
+
+
+
+
 PYBIND11_MODULE(eigen_slice,m)
 {
   m.doc() = "pybind11 example plugin";
