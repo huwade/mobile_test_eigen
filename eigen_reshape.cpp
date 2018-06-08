@@ -46,29 +46,18 @@ namespace py = pybind11;
 py::array_t<float> py_test_passed_by_reference(py::array_t<float, py::array::c_style | py::array::forcecast> array)
 {
   // allocate std::vector (to pass to the C++ function)
-  //std::vector<double> array_vec(array.size());
   Tensor<float, 3> tensor1(2,3,2);
     
   // copy py::array -> std::vector
-  //std::memcpy(array_vec.data(),array.data(),array.size()*sizeof(double));
   std::memcpy(tensor1.data(), array.data(), array.size()*sizeof(float));
     
   // call pure C++ function
-  //std::vector<int> result_vec = multiply(array_vec);
-  
   Tensor<float, 2> output_tesnor(4,3);
   output_tesnor = test_passed_by_reference(tensor1);
 
   // allocate py::array (to pass the result of the C++ function to Python)
-  //auto result        = py::array_t<float>(array.size());
-  //auto result_buffer = result.request();
-  //float *result_ptr    = (float *) result_buffer.ptr;
-
   // copy std::vector -> py::array
-  //std::memcpy(result_ptr,result_vec.data(),result_vec.size()*sizeof(int));
-  //std::memcpy(result_ptr,output_tesnor.data(),output_tesnor.size()*sizeof(float));
-
-  
+ 
   ssize_t              ndim    = 2;
   std::vector<ssize_t> shape   = { 4 , 3 };
   std::vector<ssize_t> strides = { sizeof(float)*3 , sizeof(float) };
@@ -91,12 +80,11 @@ py::array_t<float> py_test_passed_by_reference(py::array_t<float, py::array::c_s
 
 
 
-
 PYBIND11_MODULE(eigen_reshape,m)
 {
   m.doc() = "pybind11 example plugin";
 
   //m.def("hello", &hello);
-  m.def("test_passed_by_reference", &py_test_passed_by_reference);
+  m.def("test_passed_by_reference", &hello);
 
 }
