@@ -70,12 +70,9 @@ py::array_t<float> py_test_passed_by_reference(py::array_t<float, py::array::c_s
     ndim,                                    /* number of dimensions      */
     shape,                                   /* shape of the matrix       */
     strides                                  /* strides for each axis     */
-  ));  
-    
-    
-    
-    
-  
+  ));
+
+
 }
 
 

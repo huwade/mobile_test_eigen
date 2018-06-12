@@ -2,4 +2,3 @@
 
 
 
-c++ -O3 -shared -std=gnu++11 -I ../pybind11/include/ -I ../eigen-git-mirror/unsupported -I ../eigen/ `python3-config --cflags --ldflags --libs` eigen_slice.cpp -o eigen_slice.so -fPIC
