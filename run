@@ -1,4 +1,4 @@
- g++ -O3 -I ../pybind11/include/ -I ../eigen/  -I ../eigen-git-mirror/unsupported  -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` eigen_reshape.cpp -o eigen_reshape`python3-config --extension-suffix`
+g++ -O3 -I ../pybind11/include/ -I ../eigen/  -I ../eigen-git-mirror/unsupported  -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` layer7_core_mat0_mat1_dot.cpp -o matrix_dot`python3-config --extension-suffix`
 
 
 

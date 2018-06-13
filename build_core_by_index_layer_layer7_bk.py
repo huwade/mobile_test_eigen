@@ -77,66 +77,27 @@ def tt_construct_layer7(filename, feature_x):
 
     y_out      = np.zeros((L,1), dtype=float, order='F')
 
-    
+    print(tensor_row_len)
     #t0 = time.time()
-    
-    core_mat_0 = core_tensor_0[:,1,:]
-    core_mat_1 = core_tensor_1[:,1,:]
-    tmp1 = np.dot(core_mat_0, core_mat_1)
-    tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
-    print(np.linalg.norm(tmp1-tmp1_bk,1))        
-           
+    for i in range(0,tensor_row_len):
+        core_mat_0 = core_tensor_0[:,i,:]
+        for j in range(0,tensor_column_len):
+            core_mat_1 = core_tensor_1[:,j,:]
+            tmp1 = np.dot(core_mat_0, core_mat_1)
+            tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
+            
+            for k in range(0,tensor_depth_len):
                 
-    core_mat_2 = core_tensor_2[:,1,:]
-    tmp2 = np.dot(tmp1, core_mat_2)
-    tmp2_bk = matrix_dot.layer7_core_tmp1_mat2_dot(tmp1, core_mat_2)
-    
-    print(tmp1_bk.shape, tmp2_bk.shape, tmp1.shape, tmp2.shape)
-    print(np.linalg.norm(tmp2-tmp2_bk,1))        
+                core_mat_2 = np.reshape(core_tensor_2[:,k,:],[ranks[2], ranks[3]],order = 'F')
+                tmp2 = np.dot(tmp1, core_mat_2)
 
-    
-    print('**********************************************************************************')
-    
-    
-    ind1 = np.zeros(tensor_channel_len) + 1
-    ind2 = np.zeros(tensor_channel_len) + 2
-    ind3 = np.zeros(tensor_channel_len) + 3
-    
-    ind1_bk = matrix_dot.layer7_create_index(tensor_channel_len,1)
-    ind2_bk = matrix_dot.layer7_create_index(tensor_channel_len,2)
-    ind3_bk = matrix_dot.layer7_create_index(tensor_channel_len,3)    
-    
-    print('ind1.shape', ind1.shape ,'ind1_bk.shape' , ind1_bk.shape, 'ind1.dtype' , ind1.dtype
-          ,'ind1_bk.dtype', ind1_bk.dtype , 'np.linalg.norm(ind1-ind1_bk,1)',np.linalg.norm(ind1-ind1_bk,1))
-    
+                ind1 = np.zeros(tensor_channel_len) + i
+                ind2 = np.zeros(tensor_channel_len) + j
+                ind3 = np.zeros(tensor_channel_len) + k
+                ind4 = np.arange(tensor_channel_len)
+                 
+                indy = np.ravel_multi_index([ind1.astype('int64'),ind2.astype('int64'),ind3.astype('int64'),ind4.astype('int64')],(tensor_row_len, tensor_column_len, tensor_depth_len, tensor_channel_len), order='F')
 
-    ind4 = np.arange(tensor_channel_len)
-    ind4_bk = matrix_dot.layer7_one_d_arrange(tensor_channel_len)
-    
-    
-    print('ind4.shape', ind4.shape ,'ind4_bk.shape' , ind4_bk.shape, 'ind4.dtype' , ind4.dtype
-          ,'ind4_bk.dtype', ind4_bk.dtype , 'np.linalg.norm(ind4-ind4_bk,1)',np.linalg.norm(ind4-ind4_bk,1))
-    
-    
-    indy = np.ravel_multi_index([ind1.astype('int64'),ind2.astype('int64'),ind3.astype('int64'),ind4.astype('int64')],
-                              (tensor_row_len, tensor_column_len, tensor_depth_len, tensor_channel_len), order='F')   
-    
-
-    
-    
-    
-    indy_bk = matrix_dot.layer7_four_d_ravel_multi_index( ind1.astype('int64'),ind2.astype('int64'),ind3.astype('int64'),
-                                                          ind4.astype('int64'),tensor_row_len, tensor_column_len, 
-                                                          tensor_depth_len, tensor_channel_len
-                                                        )
-    
-    indy = np.reshape(indy,[256,1])
-    print('np.linalg.norm(indy-indy_bk,1)',np.linalg.norm(indy-indy_bk,1), 
-          'indy.shape', indy.shape, 'indy_bk.shape' , indy_bk.shape)
-    
-    print(indy[1:5], indy_bk[1:5])
-    
-'''
                 row_index = np.mod(indy, column_len)
 
                 column_index = np.floor( indy / column_len).astype('int64')
@@ -147,7 +108,7 @@ def tt_construct_layer7(filename, feature_x):
                 tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
                 for l in range(0,tensor_channel_len):
                     y_out[row_index[l]] = y_out[row_index[l]] + tmp4[0,l]
-'''
+    
     
     
     
@@ -203,7 +164,7 @@ def haarMatrix(n, normalized=1):
     ####reconstruct weight matrix
 '''
 if __name__ == '__main__':
-    filename = '/home/wade/Document2/TT-haar-devolope/weights/mnist_y_out_layer7.mat'
+    filename = '/home/wade/Documents/TT-haar-devolope/weights/mnist_y_out_layer7.mat'
     feature_x = np.random.randn(1024,1) ;
     tt_construct_layer7(filename, feature_x)		
     
