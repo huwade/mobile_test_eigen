@@ -5,9 +5,20 @@
 #include <pybind11/eigen.h>
 #include <Eigen/LU>
 #include <Eigen/Dense>
-
+#include <unsupported/Eigen/CXX11/Tensor>
 #include <math.h>  
 using namespace Eigen;
+using Eigen::Tensor;
+
+//global variable
+/*
+tensor_column_len  = 16
+tensor_row_len     = shape[1]
+tensor_depth_len   = shape[2]
+tensor_channel_len = shape[3]
+*/
+    
+    
 // -------------
 // pure C++ code
 // -------------
@@ -127,8 +138,107 @@ MatrixXf Get_feature_x_by_column_index(const MatrixXf &feature_x, const MatrixXf
 }
 
 
+MatrixXf tensor_to_matrix_slice_core_0(Tensor<float, 3> &tensor1, int &idx)
+{
+    MatrixXf output(1,16);
+
+    for (int i = 0; i < 16; ++i) 
+    {
+        output(0,i) = tensor1(0,idx,i);    
+    }
+
+    return output;
+
+}
+
+
+MatrixXf tensor_to_matrix_slice_core_1(Tensor<float, 3> &tensor1, int &idx)
+{
+    MatrixXf output(16,16);
+    
+    for(int i = 0; i < 16; ++i) 
+    {
+        for(int j = 0; j < 16; ++j) 
+        {
+            output(i,j) = tensor1(i,idx,j);    
+        }
+    }
+    return output;
+
+}
+
+MatrixXf tensor_to_matrix_slice_core_2(Tensor<float, 3> &tensor1, int &idx)
+{
+    MatrixXf output(16,256);
+    
+    for(int i = 0; i < 16; ++i) 
+    {
+        for(int j = 0; j < 256; ++j) 
+        {
+            output(i,j) = tensor1(i,idx,j);    
+        }
+    }
+    return output;
+
+}
+
 
 namespace py = pybind11;
+// wrap C++ function with NumPy array IO
+MatrixXf py_tensor_to_matrix_slice_0(py::array_t<float, py::array::f_style | py::array::forcecast> array, int &idx)
+{
+    // allocate std::vector (to pass to the C++ function)
+    Tensor<float, 3> tensor1(1,16,16);
+    
+    // copy py::array -> std::vector
+    std::memcpy(tensor1.data(), array.data(), array.size()*sizeof(float));
+    
+    // call pure C++ function
+    MatrixXf vec1(1, 16);
+
+    vec1 = tensor_to_matrix_slice_core_0(tensor1, idx);
+
+    // return  NumPy array
+    return vec1;
+}
+
+
+MatrixXf py_tensor_to_matrix_slice_1(py::array_t<float, py::array::f_style | py::array::forcecast> array, int &idx)
+{
+    // allocate std::vector (to pass to the C++ function)
+    Tensor<float, 3> tensor1(16,16,16);
+    
+    // copy py::array -> std::vector
+    std::memcpy(tensor1.data(), array.data(), array.size()*sizeof(float));
+    
+    // call pure C++ function
+    MatrixXf vec1(16, 16);
+
+    vec1 = tensor_to_matrix_slice_core_1(tensor1, idx);
+
+    // return  NumPy array
+    return vec1;
+}
+
+MatrixXf py_tensor_to_matrix_slice_2(py::array_t<float, py::array::f_style | py::array::forcecast> array, int &idx)
+{
+    
+    
+    // allocate std::vector (to pass to the C++ function)
+    Tensor<float, 3> tensor1(16,64,256);
+    
+    // copy py::array -> std::vector
+    std::memcpy(tensor1.data(), array.data(), array.size()*sizeof(float));
+    
+    // call pure C++ function
+    MatrixXf vec1(16, 256);
+
+    vec1 = tensor_to_matrix_slice_core_2(tensor1, idx);
+
+    // return  NumPy array
+    return vec1;
+}
+
 
 PYBIND11_MODULE(matrix_dot,m)
 {
@@ -145,5 +255,8 @@ PYBIND11_MODULE(matrix_dot,m)
     m.def("layer7_floor_array", &floor_array,"multiply python array's element ");
     m.def("layer7_multiply_matrix_multiply_element_wise", &multiply_matrix_multiply_element_wise,"multiply python array's element ");
     m.def("layer7_Get_feature_x_by_index", &Get_feature_x_by_column_index,"multiply python array's element ");
+    m.def("layer7_tensor_to_matrix_slice_0", &py_tensor_to_matrix_slice_0,"multiply python array's element ");
+    m.def("layer7_tensor_to_matrix_slice_1", &py_tensor_to_matrix_slice_1,"multiply python array's element ");
+    m.def("layer7_tensor_to_matrix_slice_2", &py_tensor_to_matrix_slice_2,"multiply python array's element ");
     
 }

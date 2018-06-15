@@ -81,6 +81,30 @@ def tt_construct_layer7(filename, feature_x):
     #t0 = time.time()
     
     core_mat_0 = core_tensor_0[:,1,:]
+    
+    ind1 = 1
+    print('core_tensor_0.shape', core_tensor_0.shape, 'core_mat_0.dtype', core_tensor_0.dtype, type(core_tensor_0), ind1)
+    core_mat_0_bk = matrix_dot.layer7_tensor_to_matrix_slice_0(core_tensor_0,ind1)
+    
+    
+
+    #print('core_mat_0_bk.shape', core_mat_0_bk.shape, 'core_mat_0_bk.dtype',core_mat_0_bk.dtype)
+    #print('np.linalg.norm(core_mat_0_bk-core_mat_0,1)', np.linalg.norm(core_mat_0_bk-core_mat_0,1))
+    
+    
+    
+    core_mat_2 = core_tensor_2[:,1,:]
+    print('core_tensor_2.shape', core_tensor_2.shape,'core_mat_2.shape',core_mat_2.shape)
+    
+
+    core_mat_2_bk = matrix_dot.layer7_tensor_to_matrix_slice_2(core_tensor_2,ind1)
+     
+    print('core_mat_2_bk.shape', core_mat_2_bk.shape, 'core_mat_1_bk.dtype',core_mat_2_bk.dtype)
+    print('np.linalg.norm(core_mat_2_bk-core_mat_2,1)', np.linalg.norm(core_mat_2_bk-core_mat_2,1))
+    '''
+    core_mat_2 = core_tensor_2[:,1,:]
+    
+    
     core_mat_1 = core_tensor_1[:,1,:]
     tmp1 = np.dot(core_mat_0, core_mat_1)
     #tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
@@ -173,7 +197,7 @@ def tt_construct_layer7(filename, feature_x):
     print('np.linalg.norm(tmp4-tmp4_bk,1)', np.linalg.norm(tmp4-tmp4_bk,1), tmp4_bk.shape)
     
     
-'''
+
 
                 for l in range(0,tensor_channel_len):
                     y_out[row_index[l]] = y_out[row_index[l]] + tmp4[0,l]

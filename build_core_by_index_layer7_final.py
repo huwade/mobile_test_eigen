@@ -81,20 +81,27 @@ def tt_construct_layer7(filename, feature_x):
     print(tensor_row_len)
     #t0 = time.time()
     for i in range(0,tensor_row_len):
-        core_mat_0 = core_tensor_0[:,i,:]
+        
+        core_mat_0    = core_tensor_0[:,i,:]
+        core_mat_0_bk = matrix_dot.layer7_tensor_to_matrix_slice_0(core_tensor_0,i)
+        
         for j in range(0,tensor_column_len):
             
-            core_mat_1 = core_tensor_1[:,j,:]
+            core_mat_1    = core_tensor_1[:,j,:]
+            core_mat_1_bk = matrix_dot.layer7_tensor_to_matrix_slice_1(core_tensor_1,j)
+            
             tmp1    = np.dot(core_mat_0, core_mat_1)
-            tmp1_bk = matrix_dot.dot_matrix(core_mat_0, core_mat_1)
+            tmp1_bk = matrix_dot.dot_matrix(core_mat_0_bk, core_mat_1_bk)
             
 
             for k in range(0,tensor_depth_len):
                 
-                core_mat_2 = core_tensor_2[:,k,:]
-
-                tmp2 = np.dot(tmp1, core_mat_2)
-                tmp2_bk = matrix_dot.dot_matrix(tmp1_bk, core_mat_2)
+                core_mat_2    = core_tensor_2[:,k,:]
+                core_mat_2_bk = matrix_dot.layer7_tensor_to_matrix_slice_2(core_tensor_2,k)
+                
+                
+                tmp2    = np.dot(tmp1, core_mat_2)
+                tmp2_bk = matrix_dot.dot_matrix(tmp1_bk, core_mat_2_bk)
                 
 
                 ind1 = np.zeros(tensor_channel_len) + i
@@ -137,7 +144,7 @@ def tt_construct_layer7(filename, feature_x):
                 
                 tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
                 
-                x_bk = matrix_dot.layer7_Get_feature_x_by_index(feature_x, column_index)
+                x_bk    = matrix_dot.layer7_Get_feature_x_by_index(feature_x, column_index)
                 tmp4_bk = matrix_dot.layer7_multiply_matrix_multiply_element_wise(tmp3_bk, x_bk)
                 
                 
