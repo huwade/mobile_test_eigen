@@ -50,8 +50,8 @@ def tt_construct_layer7(filename, feature_x):
     R_cpp      = multiply_element.multiply(right_modes)
     R          = np.prod(right_modes)
 
-    print(L_cpp-L)
-    print(R_cpp-R)
+    print('L_cpp-L',L_cpp-L)
+    print('R_cpp-R',R_cpp-R)
 
     core_tensor_0 = a['tensor'][0][0][0,0]
     core_tensor_1 = a['tensor'][0][0][0,1]
@@ -75,42 +75,79 @@ def tt_construct_layer7(filename, feature_x):
 
 
 
-    y_out      = np.zeros((L,1), dtype=float, order='F')
+    y_out         = np.zeros((L,1), dtype=float, order='F')
+    y_out_bk      = np.zeros((L,1), dtype=float, order='F')
 
     print(tensor_row_len)
     #t0 = time.time()
     for i in range(0,tensor_row_len):
         core_mat_0 = core_tensor_0[:,i,:]
         for j in range(0,tensor_column_len):
-            core_mat_1 = core_tensor_1[:,j,:]
-            tmp1 = np.dot(core_mat_0, core_mat_1)
-            tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
             
+            core_mat_1 = core_tensor_1[:,j,:]
+            tmp1    = np.dot(core_mat_0, core_mat_1)
+            tmp1_bk = matrix_dot.dot_matrix(core_mat_0, core_mat_1)
+            
+
             for k in range(0,tensor_depth_len):
                 
-                core_mat_2 = np.reshape(core_tensor_2[:,k,:],[ranks[2], ranks[3]],order = 'F')
+                core_mat_2 = core_tensor_2[:,k,:]
+
                 tmp2 = np.dot(tmp1, core_mat_2)
+                tmp2_bk = matrix_dot.dot_matrix(tmp1_bk, core_mat_2)
+                
 
                 ind1 = np.zeros(tensor_channel_len) + i
                 ind2 = np.zeros(tensor_channel_len) + j
                 ind3 = np.zeros(tensor_channel_len) + k
                 ind4 = np.arange(tensor_channel_len)
-                 
-                indy = np.ravel_multi_index([ind1.astype('int64'),ind2.astype('int64'),ind3.astype('int64'),ind4.astype('int64')],(tensor_row_len, tensor_column_len, tensor_depth_len, tensor_channel_len), order='F')
+                
+                ind1_bk = matrix_dot.layer7_create_index(tensor_channel_len,1)
+                ind2_bk = matrix_dot.layer7_create_index(tensor_channel_len,2)
+                ind3_bk = matrix_dot.layer7_create_index(tensor_channel_len,3)    
+                ind4_bk = matrix_dot.layer7_one_d_arrange(tensor_channel_len)    
+                    
+                    
+                indy = np.ravel_multi_index([ind1.astype('int64'),ind2.astype('int64'),
+                                             ind3.astype('int64'),ind4.astype('int64')],
+                                             (tensor_row_len, tensor_column_len, tensor_depth_len, tensor_channel_len), 
+                                              order='F'
+                                           )
 
-                row_index = np.mod(indy, column_len)
-
-                column_index = np.floor( indy / column_len).astype('int64')
-
-                tmp3 = np.dot(tmp2,core_tensor_3.reshape([ranks[3], tensor_channel_len],order = 'F')  )
-
-
+                indy_bk = matrix_dot.layer7_four_d_ravel_multi_index(ind1_bk.astype('int64'),ind2_bk.astype('int64'),
+                                                                     ind3_bk.astype('int64'),
+                                                                     ind4_bk.astype('int64'),tensor_row_len, 
+                                                                     tensor_column_len, tensor_depth_len, 
+                                                                     tensor_channel_len
+                                                                    )
+                
+                
+                row_index    = np.mod(indy, column_len)
+                row_index_bk = matrix_dot.layer7_mod(indy_bk, column_len)
+                
+                
+                column_index    = np.floor( indy / column_len).astype('int64')
+                column_index_bk = matrix_dot.layer7_floor_array(indy_bk / column_len).astype('int64')
+                
+                
+                #tmp3    = np.dot(tmp2,core_tensor_3.reshape([ranks[3], tensor_channel_len],order = 'F'))
+                tmp3    = np.dot(tmp2,core_tensor_3)
+                tmp3_bk = matrix_dot.dot_matrix(tmp2_bk, core_tensor_3)
+                
+                
                 tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
+                
+                x_bk = matrix_dot.layer7_Get_feature_x_by_index(feature_x, column_index)
+                tmp4_bk = matrix_dot.layer7_multiply_matrix_multiply_element_wise(tmp3_bk, x_bk)
+                
+                
+                
                 for l in range(0,tensor_channel_len):
                     y_out[row_index[l]] = y_out[row_index[l]] + tmp4[0,l]
+                    y_out_bk[row_index[l]] = y_out_bk[row_index[l]] + tmp4_bk[0,l]
     
     
-    
+    print('final',np.linalg.norm(y_out-y_out_bk,1))
     
 	
 

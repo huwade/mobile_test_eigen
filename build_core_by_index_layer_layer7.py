@@ -83,13 +83,15 @@ def tt_construct_layer7(filename, feature_x):
     core_mat_0 = core_tensor_0[:,1,:]
     core_mat_1 = core_tensor_1[:,1,:]
     tmp1 = np.dot(core_mat_0, core_mat_1)
-    tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
+    #tmp1_bk = matrix_dot.layer7_core_mat0_mat1_dot(core_mat_0, core_mat_1)
+    tmp1_bk = matrix_dot.dot_matrix(core_mat_0, core_mat_1)
     print(np.linalg.norm(tmp1-tmp1_bk,1))        
            
                 
     core_mat_2 = core_tensor_2[:,1,:]
     tmp2 = np.dot(tmp1, core_mat_2)
-    tmp2_bk = matrix_dot.layer7_core_tmp1_mat2_dot(tmp1, core_mat_2)
+    #tmp2_bk = matrix_dot.layer7_core_tmp1_mat2_dot(tmp1, core_mat_2)
+    tmp2_bk = matrix_dot.dot_matrix(tmp1, core_mat_2)
     
     print(tmp1_bk.shape, tmp2_bk.shape, tmp1.shape, tmp2.shape)
     print(np.linalg.norm(tmp2-tmp2_bk,1))        
@@ -135,16 +137,44 @@ def tt_construct_layer7(filename, feature_x):
           'indy.shape', indy.shape, 'indy_bk.shape' , indy_bk.shape)
     
     print(indy[1:5], indy_bk[1:5])
+    row_index = np.mod(indy, column_len)
+    #print('row_index', row_index.shape)
+    
+    
+    row_index_bk = matrix_dot.layer7_mod(indy_bk, column_len)
+    #print('row_index_bk', row_index_bk.shape)
+    
+    
+    #print('indy / column_len', np.floor( indy / column_len).astype('int64'))
+    
+    column_index = np.floor( indy / column_len).astype('int64')
+    column_index_bk = matrix_dot.layer7_floor_array(indy / column_len).astype('int64')
+    
+    print('column_index', column_index[1:5], 'column_index_bk', column_index_bk[1:5])
+    
+    
+    
+    
+    tmp3 = np.dot(tmp2, core_tensor_3)
+    tmp3_bk = matrix_dot.dot_matrix(tmp2, core_tensor_3)
+    
+    print('tmp3', tmp3[0,1:5], 'tmp3_bk', tmp3_bk[0,1:5], tmp3_bk.shape, tmp3.shape)
+    
+    
+    x = feature_x[column_index].reshape([1,tensor_channel_len],order = 'F')
+    x_bk = matrix_dot.layer7_Get_feature_x_by_index(feature_x, column_index)
+    print('np.linalg.norm(x-x_bk,1)', np.linalg.norm(x-x_bk,1), x_bk.shape)
+    
+    
+    
+    
+    tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
+    tmp4_bk = matrix_dot.layer7_multiply_matrix_multiply_element_wise(tmp3, x_bk)
+    print('np.linalg.norm(tmp4-tmp4_bk,1)', np.linalg.norm(tmp4-tmp4_bk,1), tmp4_bk.shape)
+    
     
 '''
-                row_index = np.mod(indy, column_len)
 
-                column_index = np.floor( indy / column_len).astype('int64')
-
-                tmp3 = np.dot(tmp2,core_tensor_3.reshape([ranks[3], tensor_channel_len],order = 'F')  )
-
-
-                tmp4 = np.multiply(tmp3,feature_x[[column_index]].reshape([1,tensor_channel_len],order = 'F'))
                 for l in range(0,tensor_channel_len):
                     y_out[row_index[l]] = y_out[row_index[l]] + tmp4[0,l]
 '''
@@ -204,6 +234,6 @@ def haarMatrix(n, normalized=1):
 '''
 if __name__ == '__main__':
     filename = '/home/wade/Document2/TT-haar-devolope/weights/mnist_y_out_layer7.mat'
-    feature_x = np.random.randn(1024,1) ;
+    feature_x = np.random.randn(4096,1) ;
     tt_construct_layer7(filename, feature_x)		
     

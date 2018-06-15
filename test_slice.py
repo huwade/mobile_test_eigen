@@ -37,3 +37,16 @@ print( b.shape, c.shape, np.linalg.norm(b-c,2), d)
 e = matrix_dot.layer7_one_d_arrange(5)
 print(e,e.dtype, type(e))
 
+print('********************')
+
+
+x = np.arange(81,dtype=float).reshape(81,1)
+
+y = [w**2 for w in range(9)]
+
+
+k = x[y].reshape([1,9],order = 'F')
+print(y,k)
+
+
+
