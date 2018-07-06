@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/CXX11/Tensor>
 #include <math.h>  
+#include <algorithm>
 using namespace Eigen;
 using Eigen::Tensor;
 
@@ -22,22 +23,14 @@ tensor_channel_len = shape[3]
 // -------------
 // pure C++ code
 // -------------
-MatrixXf multiply_matrix_mat0_mat1(const MatrixXf &mat1, const MatrixXf &mat2)
+MatrixXf create_zero_array(int &tensor_channel_len)
 {
-    MatrixXf output(1,16);
-    output = mat1*mat2;
-    //std::cout << "Here is output matrix:\n" << output << std::endl; 
-    return output;
+    MatrixXf vec1(tensor_channel_len, 1);
+    vec1.setZero();
+    //std::cout << "vec1.setOnes();:\n" << vec1 << std::endl; 
+    return vec1;
 }
 
-
-MatrixXf multiply_matrix_tmp1_mat2(const MatrixXf &mat1, const MatrixXf &mat2)
-{
-    MatrixXf output(1,256);
-    output = mat1*mat2;
-    //std::cout << "Here is output matrix:\n" << output << std::endl; 
-    return output;
-}
 
 MatrixXf create_index(int &tensor_channel_len, int &j)
 {
@@ -59,9 +52,23 @@ VectorXf one_d_arrange(int &len)
 }
 
 
-double det(const Eigen::MatrixXd &xs)
+MatrixXf activation_function_ReLU(const VectorXf &input)
 {
-    return xs.determinant();
+    int len;
+    len = input.size();
+
+    
+    MatrixXf output(len, 1);
+    
+    float tmp=0;
+    float zero = 0;
+	for (int i = 0; i < len; i++) 
+    {
+        tmp = input(i,0);
+        output(i,0) = std::max( zero, tmp);
+	}
+ 
+	return output;
 }
 
 
@@ -243,13 +250,11 @@ MatrixXf py_tensor_to_matrix_slice_2(py::array_t<float, py::array::f_style | py:
 PYBIND11_MODULE(matrix_dot,m)
 {
     m.doc() = "pybind11 example plugin";
-
-    //m.def("layer7_core_mat0_mat1_dot", &multiply_matrix_mat0_mat1, "multiply python array's element ");
-    //m.def("layer7_core_tmp1_mat2_dot", &multiply_matrix_tmp1_mat2, "multiply python array's element ");
+    m.def("activation_function_ReLU", &activation_function_ReLU, "multiply python array's element ");
+    m.def("create_zero_array", &create_zero_array, "multiply python array's element ");
     m.def("dot_matrix", &multiply_matrix, "multiply python array's element ");
     m.def("layer7_create_index", &create_index,                "multiply python array's element ");
     m.def("layer7_one_d_arrange", &one_d_arrange,              "multiply python array's element ");
-    m.def("det", &det);
     m.def("layer7_four_d_ravel_multi_index", &four_d_ravel_multi_index,"multiply python array's element ");
     m.def("layer7_mod", &mod,"multiply python array's element ");
     m.def("layer7_floor_array", &floor_array,"multiply python array's element ");
@@ -259,4 +264,5 @@ PYBIND11_MODULE(matrix_dot,m)
     m.def("layer7_tensor_to_matrix_slice_1", &py_tensor_to_matrix_slice_1,"multiply python array's element ");
     m.def("layer7_tensor_to_matrix_slice_2", &py_tensor_to_matrix_slice_2,"multiply python array's element ");
     
+
 }
