@@ -1,0 +1,31 @@
+Quiz 1-2: Common Senses
+
+
+
+When will we use F1-score instead of precision(accuracy)?
+ans : 
+    if you have an uneven class distribution. Accuracy works best if false positives and false negatives have similar cost. If the cost of false positives 
+    and false negatives are very different, it’s better to look at both Precision and Recall. 
+    
+
+Why don’t we use binary classification function as the activation function in neural networks?
+ans : 
+    reduced likelihood of the gradient to vanish
+
+
+
+What is the bias and variance of a machine learning algorithm?
+ans :
+    high bias under fitting, high variance overfitting
+
+
+
+When training a single tree in random forest, we don’t prune the tree, why?
+ans :
+    
+
+What is one-hot encoding?
+ans : 
+    將數字 0~9 轉成用 0 1 來表示，舉例來說 十個數字就十個維度，0 表示為 1 0 0 0 0 0 0 0 0 0
+
+    
